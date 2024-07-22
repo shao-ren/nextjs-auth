@@ -5,6 +5,8 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { db } from "./db";
 import bcrypt from "bcrypt";
 
+const whitelist = ["oonshaoren@gmail.com", "allowedemail2@example.com"];
+
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(db),
     secret: process.env.NEXTAUTH_SECRET,
@@ -54,6 +56,14 @@ export const authOptions: NextAuthOptions = {
         })
     ],
     callbacks: {
+        async signIn({ user }) {
+            const email = user?.email;
+            if (email && whitelist.includes(email)) {
+                return true;
+            } else {
+                return false;
+            }
+        },
         async jwt({ token, user }) {
             console.log(token, user)
             if (user) {
